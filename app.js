@@ -10,7 +10,7 @@ const { requestLogger, errorLogger } = require('./middlewares/logger');
 const { errorsHandler } = require('./middlewares/errorsHandler');
 const { limiter } = require('./middlewares/rateLimiter');
 
-const { PORT = 3005 } = process.env;
+const { PORT = 3000 } = process.env;
 const app = express();
 
 app.use(helmet());
