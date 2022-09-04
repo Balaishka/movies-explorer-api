@@ -1,17 +1,19 @@
 require('dotenv').config();
 const express = require('express');
+const helmet = require('helmet');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const { errors } = require('celebrate');
-const { celebrate, Joi } = require('celebrate');
 const cors = require('cors');
-const { login, createUser } = require('./controllers/users');
-const auth = require('./middlewares/auth');
-const NotFoundError = require('./errors/not-found-err');
+const routes = require('./routes/index');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
+const { errorsHandler } = require('./middlewares/errorsHandler');
+const { limiter } = require('./middlewares/rateLimiter');
 
-const { PORT = 3000 } = process.env;
+const { PORT = 3005 } = process.env;
 const app = express();
+
+app.use(helmet());
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -22,48 +24,15 @@ app.use(requestLogger); // подключаем логгер запросов
 
 app.use(cors());
 
-app.post('/signin', celebrate({
-  body: Joi.object().keys({
-    email: Joi.string().email().required(),
-    password: Joi.string().required(),
-  }),
-}), login);
-app.post('/signup', celebrate({
-  body: Joi.object().keys({
-    email: Joi.string().email().required(),
-    password: Joi.string().required(),
-    name: Joi.string().min(2).max(30),
-  }),
-}), createUser);
+app.use(limiter);
 
-app.use(auth);
-
-app.use('/users', require('./routes/users'));
-app.use('/movies', require('./routes/movies'));
-
-app.use(() => {
-  throw new NotFoundError('Такой страницы не существует');
-});
+app.use(routes); // подключаем роуты
 
 app.use(errorLogger); // подключаем логгер ошибок
 
 app.use(errors());
 
-app.use((err, req, res, next) => {
-  // если у ошибки нет статуса, выставляем 500
-  const { statusCode = 500, message } = err;
-
-  res
-    .status(statusCode)
-    .send({
-      // проверяем статус и выставляем сообщение в зависимости от него
-      message: statusCode === 500
-        ? 'На сервере произошла ошибка'
-        : message,
-    });
-
-  next();
-});
+app.use(errorsHandler);
 
 app.listen(PORT, () => {
   /* console.log('Ссылка на сервер');
