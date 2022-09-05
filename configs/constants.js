@@ -8,6 +8,7 @@ const errorNotFoundText = 'Такой страницы не существует
 const errorRigthText = 'Вы не можете удалить этот фильм';
 const errorNotFoundFilmText = 'Фильм не найден';
 const errorServerText = 'На сервере произошла ошибка';
+const errorCustomText = 'Невалидный url';
 
 module.exports = {
   errorAuthorizationText,
@@ -20,4 +21,5 @@ module.exports = {
   errorRigthText,
   errorNotFoundFilmText,
   errorServerText,
+  errorCustomText,
 };

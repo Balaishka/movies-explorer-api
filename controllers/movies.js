@@ -8,7 +8,6 @@ const {
 
 module.exports.getMovies = (req, res, next) => {
   Movie.find({}).sort({ createdAt: -1 })
-    .populate(['owner'])
     .then((movies) => res.send(movies))
     .catch(next);
 };

@@ -1,6 +1,13 @@
 const { celebrate, Joi } = require('celebrate');
+const { isURL } = require('validator');
+const { errorCustomText } = require('../configs/constants');
 
-const isURL = /^(https?:\/\/)?([\da-z.-]+)\.([a-z.]{2,6})([/\w.-]*)*\/?$/;
+const validateUrl = (value, helpers) => {
+  if (isURL(value)) {
+    return value;
+  }
+  return helpers.message(errorCustomText);
+};
 
 const validateLogin = celebrate({
   body: Joi.object().keys({
@@ -31,9 +38,9 @@ const validateMovieInfo = celebrate({
     duration: Joi.number().required(),
     year: Joi.string().required().length(4),
     description: Joi.string().required(),
-    image: Joi.string().required().regex(isURL),
-    trailerLink: Joi.string().required().regex(isURL),
-    thumbnail: Joi.string().required().regex(isURL),
+    image: Joi.string().required().custom(validateUrl),
+    trailerLink: Joi.string().required().custom(validateUrl),
+    thumbnail: Joi.string().required().custom(validateUrl),
     movieId: Joi.number().required(),
     nameRU: Joi.string().required().regex(/^[а-яёА-ЯЁ\d\s]+$/),
     nameEN: Joi.string().required().regex(/^[a-zA-Z\d\s]+$/),
