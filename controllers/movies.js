@@ -2,6 +2,9 @@ const Movie = require('../models/movie');
 const NotFoundError = require('../errors/not-found-err');
 const ForbiddenError = require('../errors/forbiddden-err');
 const ValidationError = require('../errors/validation-err');
+const {
+  errorIncorrectDataText, errorDataText, errorRigthText, errorNotFoundFilmText,
+} = require('../configs/constants');
 
 module.exports.getMovies = (req, res, next) => {
   Movie.find({}).sort({ createdAt: -1 })
@@ -42,7 +45,7 @@ module.exports.createMovie = (req, res, next) => {
     .then((movie) => res.send(movie))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        next(new ValidationError('Некорректно введены данные'));
+        next(new ValidationError(errorIncorrectDataText));
         return;
       }
       next(err);
@@ -53,11 +56,11 @@ module.exports.deleteMovie = (req, res, next) => {
   Movie.findById(req.params.movieId)
     .then((movie) => {
       if (movie === null) {
-        throw new NotFoundError('Фильм не найден');
+        throw new NotFoundError(errorNotFoundFilmText);
       }
 
       if (req.user._id.toString() !== movie.owner.toString()) {
-        throw new ForbiddenError('Вы не можете удалить этот фильм');
+        throw new ForbiddenError(errorRigthText);
       }
 
       movie.remove()
@@ -68,7 +71,7 @@ module.exports.deleteMovie = (req, res, next) => {
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        next(new ValidationError('Неверные данные'));
+        next(new ValidationError(errorDataText));
         return;
       }
       next(err);

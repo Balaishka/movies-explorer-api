@@ -9,8 +9,9 @@ const routes = require('./routes/index');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
 const { errorsHandler } = require('./middlewares/errorsHandler');
 const { limiter } = require('./middlewares/rateLimiter');
+const { DATABASE } = require('./configs');
 
-const { PORT = 3000 } = process.env;
+const { PORT = 3000, MONGO_URL = DATABASE } = process.env;
 const app = express();
 
 app.use(helmet());
@@ -18,7 +19,7 @@ app.use(helmet());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-mongoose.connect('mongodb://localhost:27017/bitfilmsdb');
+mongoose.connect(MONGO_URL);
 
 app.use(requestLogger); // подключаем логгер запросов
 

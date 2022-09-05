@@ -4,6 +4,9 @@ const jwtSign = require('../helpers/jwt-sign');
 const NotFoundError = require('../errors/not-found-err');
 const ValidationError = require('../errors/validation-err');
 const EmailConflictError = require('../errors/email-conflict-err');
+const {
+  errorIncorrectDataText, errorEmailText, errorUserText, errorDataText,
+} = require('../configs/constants');
 
 module.exports.createUser = (req, res, next) => {
   const {
@@ -11,25 +14,23 @@ module.exports.createUser = (req, res, next) => {
   } = req.body;
 
   bcrypt.hash(password, 10)
-    .then((hash) => {
-      User.create({
-        email, password: hash, name,
-      })
-        .then((user) => {
-          res.send(user);
-        })
-        .catch((err) => {
-          if (err.name === 'ValidationError') {
-            next(new ValidationError('Некорректно введены данные'));
-            return;
-          }
-          if (err.code === 11000) {
-            next(new EmailConflictError('Пользователь с таким email уже существует'));
-            return;
-          }
+    .then((hash) => User.create({
+      email, password: hash, name,
+    })
+      .then((user) => {
+        res.send(user);
+      }))
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        next(new ValidationError(errorIncorrectDataText));
+        return;
+      }
+      if (err.code === 11000) {
+        next(new EmailConflictError(errorEmailText));
+        return;
+      }
 
-          next(err);
-        });
+      next(err);
     });
 };
 
@@ -49,13 +50,13 @@ module.exports.getUser = (req, res, next) => {
   User.findById(req.user._id)
     .then((user) => {
       if (user === null) {
-        throw new NotFoundError('Пользователь не найден');
+        throw new NotFoundError(errorUserText);
       }
       res.send(user);
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        next(new ValidationError('Неверные данные'));
+        next(new ValidationError(errorDataText));
         return;
       }
       next(err);
@@ -70,13 +71,17 @@ module.exports.updateUserInfo = (req, res, next) => {
   )
     .then((user) => {
       if (user === null) {
-        throw new NotFoundError('Пользователь не найден');
+        throw new NotFoundError(errorUserText);
       }
       res.send(user);
     })
     .catch((err) => {
       if (err.name === 'ValidationError' || err.name === 'CastError') {
-        next(new ValidationError('Неверные данные'));
+        next(new ValidationError(errorDataText));
+        return;
+      }
+      if (err.code === 11000) {
+        next(new EmailConflictError(errorEmailText));
         return;
       }
       next(err);

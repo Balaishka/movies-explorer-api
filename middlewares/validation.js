@@ -13,7 +13,7 @@ const validateRegistration = celebrate({
   body: Joi.object().keys({
     email: Joi.string().email().required(),
     password: Joi.string().required(),
-    name: Joi.string().min(2).max(30),
+    name: Joi.string().min(2).max(30).required(),
   }),
 });
 
@@ -34,7 +34,7 @@ const validateMovieInfo = celebrate({
     image: Joi.string().required().regex(isURL),
     trailerLink: Joi.string().required().regex(isURL),
     thumbnail: Joi.string().required().regex(isURL),
-    movieId: Joi.string().required().hex(),
+    movieId: Joi.number().required(),
     nameRU: Joi.string().required().regex(/^[а-яёА-ЯЁ\d\s]+$/),
     nameEN: Joi.string().required().regex(/^[a-zA-Z\d\s]+$/),
   }),
