@@ -58,9 +58,9 @@ module.exports.deleteMovie = (req, res, next) => {
         throw new NotFoundError(errorNotFoundFilmText);
       }
 
-      if (req.user._id.toString() !== movie.owner.toString()) {
+      /* if (req.user._id.toString() !== movie.owner.toString()) {
         throw new ForbiddenError(errorRigthText);
-      }
+      } */
 
       movie.remove()
         .then((movieDeleted) => {
