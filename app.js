@@ -11,7 +11,7 @@ const { errorsHandler } = require('./middlewares/errorsHandler');
 const { limiter } = require('./middlewares/rateLimiter');
 const { DATABASE } = require('./configs');
 
-const { PORT = 3000, MONGO_URL = DATABASE } = process.env;
+const { PORT = 3005, MONGO_URL = DATABASE } = process.env;
 const app = express();
 
 app.use(helmet());
